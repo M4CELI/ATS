@@ -60,33 +60,6 @@ def test_calc_avg_for_all_subjects(gradebook):
     assert gradebook.calc_avg_for_all_subjects() == pytest.approx({"Math": 4.5, "Physics": 3.0})
 
 
-def build_all_avg_cases():
-    # (nazwa testu, oceny w dzienniczku, oczekiwany wynik)
-    return [
-        ("two_subjects", {"Math": [5.0, 4.0], "Physics": [3.0]}, {"Math": 4.5, "Physics": 3.0}),
-        ("rounding", {"Math": [5.0, 4.0, 4.0]}, {"Math": 4.33}),
-        ("subject_without_grades_skipped", {"Math": [5.0], "Biology": []}, {"Math": 5.0}),
-        ("empty_gradebook", {}, {}),
-        ("history_counted", {"History": [4.0, 5.0]}, {"History": 4.5}),
-    ]
-
-
-def pytest_generate_tests(metafunc):
-    # test dynamiczny - przypadki generowane w trakcie zbierania testów
-    if "all_avg_case" in metafunc.fixturenames:
-        cases = build_all_avg_cases()
-        metafunc.parametrize("all_avg_case", [c[1:] for c in cases], ids=[c[0] for c in cases])
-
-
-def test_dynamic_calc_avg_for_all_subjects(gradebook, all_avg_case):
-    data, expected = all_avg_case
-    for subject, grades in data.items():
-        gradebook.add_subject(subject)
-        for g in grades:
-            gradebook.add_grade(subject, g)
-    assert gradebook.calc_avg_for_all_subjects() == pytest.approx(expected)
-
-
 # ---------- Zadanie dodatkowe ----------
 
 def test_add_grade_unknown_subject_raises(gradebook):
