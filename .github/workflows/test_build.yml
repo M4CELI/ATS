@@ -1,0 +1,62 @@
+---
+name: Test and build
+
+"on":
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ATS_Z2_s36829
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: 1. Dry run
+        run: python main.py
+
+      - name: 2. Super-linter
+        uses: super-linter/super-linter@v8.7.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: true
+          FILTER_REGEX_INCLUDE: .*(ATS_Z2_s36829|\.github/workflows)/.*
+          VALIDATE_PYTHON_BLACK: true
+          VALIDATE_PYTHON_FLAKE8: true
+          VALIDATE_PYTHON_ISORT: true
+          VALIDATE_PYTHON_PYLINT: true
+          VALIDATE_PYTHON_RUFF: true
+          VALIDATE_YAML: true
+          VALIDATE_GITHUB_ACTIONS: true
+
+      - name: 3. Unit tests
+        run: |
+          pip install pytest
+          python -m pytest -v
+
+      - name: 4. Package
+        run: |
+          mkdir -p build dist
+          cp gradebook.py main.py build/
+          python -m zipapp build -m "main:main" -o dist/gradebook.pyz
+          python dist/gradebook.pyz
+
+      - name: 5. Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradebook
+          path: ATS_Z2_s36829/dist/gradebook.pyz
