@@ -52,3 +52,4 @@ class Gradebook:
     def _round2(value):
         # zaokrąglenie "half up" jak Math.round w Javie
         return math.floor(value * 100 + 0.5) / 100
+    
