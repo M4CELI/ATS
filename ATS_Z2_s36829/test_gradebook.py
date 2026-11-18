@@ -116,3 +116,4 @@ def test_rounding_half_up(gradebook):
     gradebook.add_subject("Math")
     gradebook.add_grade("Math", 4.125)
     assert gradebook.calc_avg_for_subject("Math") == 4.13
+
